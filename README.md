@@ -1,10 +1,8 @@
-<img src=".github/ai-forge.png" align="left" width="400" alt="ai-forge banner"/>
+<p align="center"><img src=".github/ai-forge.png" width="400" alt="ai-forge banner"/></p>
 
 # ai-forge
 
 8 skills build & grade Claude Code skills/agents. Create, judge, eval, ship.
-
-<br clear="left"/>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![skills.sh](https://skills.sh/b/robcsaszar/ai-forge)](https://skills.sh/robcsaszar/ai-forge)
 
