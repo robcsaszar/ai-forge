@@ -1,4 +1,12 @@
+<img src=".github/ai-forge.png" align="left" width="400" alt="ai-forge banner"/>
+
 # ai-forge
+
+8 skills build & grade Claude Code skills/agents. Create, judge, eval, ship.
+
+<br clear="left"/>
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![skills.sh](https://skills.sh/b/robcsaszar/ai-forge)](https://skills.sh/robcsaszar/ai-forge)
 
 Eight skills covering the full lifecycle of an AI skill or agent definition: create it, judge it, review it before it ships, apply approved findings, evaluate it behaviorally, recap what it actually does versus what it claims, update it, and audit a whole repo of them at once.
 
