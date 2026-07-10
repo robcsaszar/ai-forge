@@ -1,0 +1,19 @@
+{
+  "name": "robcsaszar-ai-forge",
+  "version": "0.5.0",
+  "description": "A workflow of skills for creating, updating, judging, reviewing, evaluating, and auditing AI skills and agent definitions.",
+  "author": {
+    "name": "Rob Csaszar",
+    "url": "https://nhg.design"
+  },
+  "repository": "https://github.com/robcsaszar/ai-forge",
+  "license": "MIT",
+  "keywords": [
+    "skill-authoring",
+    "agent-authoring",
+    "prompt-engineering",
+    "evaluation",
+    "quality-review",
+    "claude-code"
+  ]
+}

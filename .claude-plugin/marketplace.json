@@ -1,0 +1,15 @@
+{
+  "name": "ai-forge",
+  "owner": {
+    "name": "Rob Csaszar",
+    "url": "https://nhg.design"
+  },
+  "plugins": [
+    {
+      "name": "robcsaszar-ai-forge",
+      "source": "./",
+      "description": "A workflow of skills for creating, updating, judging, reviewing, evaluating, and auditing AI skills and agent definitions.",
+      "version": "0.5.0"
+    }
+  ]
+}
