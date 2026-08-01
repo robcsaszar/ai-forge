@@ -71,32 +71,38 @@ Before [action], ask yourself:
 
 ---
 
-## U3: Anti-Pattern Quality (15 points)
+## U3: Constraint Quality (15 points)
 
-Does the prompt have an effective NEVER list?
+Are the prompt's constraints justified, explained, and load-bearing?
+
+**Score the justification, not the format.** A NEVER list is one way to express a constraint, not evidence of quality. A prompt that achieves the same constraint by explaining the reasoning scores *higher* than one that asserts it — a model that understands why a rule exists honours it in cases the rule never anticipated, while a bare prohibition gets violated the moment the obvious path is blocked.
 
 | Score | Criteria |
 |-------|----------|
-| 0–3 | No anti-patterns mentioned |
-| 4–7 | Generic warnings ("avoid errors", "be careful", "consider edge cases") |
-| 8–11 | Specific NEVER list with some reasoning |
-| 12–15 | Expert-grade anti-patterns with WHY — things only experience teaches |
+| 0–3 | No constraints where the domain clearly has failure modes, or only generic warnings ("avoid errors", "be careful") |
+| 4–7 | Constraints are asserted without reasoning, or prohibit things the model wouldn't do anyway |
+| 8–11 | Constraints are specific and mostly carry a WHY; some restate defaults or duplicate each other |
+| 12–15 | Every constraint is load-bearing, non-obvious, and explains the failure it prevents — things only experience teaches |
 
-**Expert anti-patterns** (specific + reason):
+**Strong** (specific, with the mechanism):
 
 ```markdown
 NEVER chain commands with && — the safety check fires on
 ambiguous multi-command calls and interrupts mid-flow.
 ```
 
-**Weak anti-patterns** (vague, no reasoning):
+**Weak** (vague, no reasoning):
 
 ```markdown
 Avoid making mistakes.
 Be careful with edge cases.
 ```
 
-**The test**: Would an expert read the anti-pattern list and say "yes, I learned this the hard way"? Or "this is obvious to everyone"?
+**The test**: would an expert read these and say "yes, I learned this the hard way"? Or "this is obvious to everyone"?
+
+**Do not deduct for the absence of a NEVER list.** Ask instead whether the prompt's domain *has* recurring failure modes and whether they're addressed at all — in any form. A prompt covering a domain with genuine traps and no constraints anywhere is a real U3 gap. A prompt whose constraints are prose because prose fits better is not.
+
+**Do deduct for prohibition bloat**: a wall of NEVERs where explanation would work reads as rigor while delivering less of it, and each low-value prohibition dilutes the ones that matter. Flag any prohibition whose **Why** merely restates the rule — if the reason is self-evident, the rule is redundant with what the model already does.
 
 ---
 
@@ -124,6 +130,25 @@ Is the level of specificity appropriate for the task's fragility?
 
 - High consequence → Low freedom
 - Low consequence → High freedom
+
+**Freedom decreases from thinking to acting.** Within a single prompt, analysis tolerates
+latitude, planning less, execution least. A prompt set to one uniform level across all three is
+miscalibrated even when that level suits its riskiest step — score it in the 6–10 band. The
+signatures are distinct: low freedom everywhere is brittle and breaks on unexpected input; high
+freedom everywhere produces inconsistent output with no quality floor.
+
+**Guidance form should match the failure it addresses.** Where the prompt documents a failure
+mode, check that the form fits it:
+
+| Failure being addressed | Form that works | Deduct when the prompt uses |
+|---|---|---|
+| Rule known but skipped under pressure | Prohibition + rationalization table | Soft "prefer"/"consider" phrasing |
+| Output structurally wrong despite compliance | Positive recipe of what the output *is* | Prohibition lists alone |
+| Required element missing | REQUIRED slot in a template | Prose reminders |
+| Behavior should vary by context | Conditional on an observable predicate | Unconditional rule plus exemptions |
+
+Also deduct for nuance clauses that reopen negotiation ("usually X, though sometimes Y may be
+appropriate") — they restore exactly the latitude the rule was written to remove.
 
 ---
 

@@ -2,6 +2,14 @@
 
 Multi-platform reference for agent definitions. Loaded in Phase 3 when artifact type is **Agent** and during ai-forge-update platform detection.
 
+## Contents
+
+- [Platform Detection](#platform-detection)
+- [Claude Code](#claude-code)
+- [GitHub Copilot](#github-copilot)
+- [OpenAI Codex](#openai-codex)
+- [Google Gemini](#google-gemini)
+
 ---
 
 ## Platform Detection

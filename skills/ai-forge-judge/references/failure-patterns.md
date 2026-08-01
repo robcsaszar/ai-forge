@@ -89,6 +89,33 @@ Fix: High freedom for creative (principles, not steps)
 
 ---
 
+### Pattern 9a: The Trigger Collision
+
+```text
+Symptom: Two skills in the same roster have descriptions that match the same requests;
+         neither fires reliably, and which one wins looks random to the user
+Root cause: Descriptions written in isolation. Each is fine alone; nobody compared them
+Fix: Differentiate on the axis that actually separates them (input type, output type,
+     lifecycle stage), then add reciprocal negative triggers — each names the other
+Detect: ai-forge-audit Phase 0 flags description keyword overlap above 0.4
+```
+
+---
+
+### Pattern 9b: The Workflow Summary
+
+```text
+Symptom: Skill fires, agent produces something shaped roughly right, but the body's
+         actual steps were never followed
+Root cause: The description narrates the workflow ("Analyzes X, then generates Y, then
+            validates Z"). That is enough to act on, so the agent acts on it and never
+            opens the body
+Fix: Description states trigger CONDITIONS only — when to load it, not what it does.
+     The body is where the procedure lives
+```
+
+---
+
 ### Pattern 10: The Contradiction (Agent / system prompts)
 
 ```text

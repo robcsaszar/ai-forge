@@ -100,6 +100,65 @@ function armStats(armTrials) {
   };
 }
 
+// ── Assertion discrimination ──────────────────────────────────────────────────
+// Optional: when trials carry per-assertion results (`expectations: [{text, passed}]`),
+// classify each assertion by how it behaves across both arms. Pass rate alone cannot
+// distinguish an assertion that measures the artifact from one that measures the model.
+
+function classifyAssertions(evalTrials) {
+  const byText = new Map();
+
+  for (const t of evalTrials) {
+    if (!Array.isArray(t.expectations)) continue;
+    for (const e of t.expectations) {
+      if (!e || typeof e.text !== "string") continue;
+      if (!byText.has(e.text)) byText.set(e.text, { with_artifact: [], baseline: [] });
+      const bucket = byText.get(e.text)[t.arm];
+      if (bucket) bucket.push(e.passed === true);
+    }
+  }
+
+  const out = [];
+  for (const [text, arms] of byText) {
+    if (arms.with_artifact.length === 0 || arms.baseline.length === 0) continue;
+
+    const rate = (a) => a.filter(Boolean).length / a.length;
+    const w = rate(arms.with_artifact);
+    const b = rate(arms.baseline);
+    const mixed = (a) => a.some(Boolean) && !a.every(Boolean);
+
+    let verdict;
+    if (mixed(arms.with_artifact) || mixed(arms.baseline)) {
+      verdict = "flaky";
+    } else if (w === 1 && b === 1) {
+      verdict = "non_discriminating";
+    } else if (w === 0 && b === 0) {
+      verdict = "broken_or_unreachable";
+    } else if (w === 1 && b === 0) {
+      verdict = "discriminating";
+    } else if (w === 0 && b === 1) {
+      verdict = "artifact_hurting";
+    } else {
+      verdict = "flaky";
+    }
+
+    out.push({
+      text,
+      with_pass_rate: round(w),
+      baseline_pass_rate: round(b),
+      verdict,
+    });
+  }
+  return out;
+}
+
+const VERDICT_NOTE = {
+  non_discriminating: "passes in both arms — measures the model, not the artifact",
+  broken_or_unreachable: "fails in both arms — broken assertion or beyond model capability",
+  artifact_hurting: "passes without the artifact but fails with it",
+  flaky: "inconsistent across trials — tighten the wording",
+};
+
 // ── Per-eval aggregation ──────────────────────────────────────────────────────
 
 if (!Array.isArray(trials.evals) || trials.evals.length === 0) {
@@ -149,14 +208,35 @@ const evals = trials.evals.map((ev) => {
     }
   }
 
+  // Per-assertion discrimination (only when trials carry expectations)
+  const assertions = classifyAssertions(ev.trials);
+  for (const a of assertions) {
+    if (a.verdict === "artifact_hurting") {
+      failures.push(
+        `eval ${ev.eval_id}: assertion "${a.text}" passes without the artifact but fails with it`
+      );
+    }
+  }
+
   return {
     eval_id: ev.eval_id,
     with_artifact: withStats,
     baseline: baseStats,
     delta_mean: deltaMean,
     flaky,
+    ...(assertions.length ? { assertions } : {}),
   };
 });
+
+// Roster-level roll-up of assertions that are not earning their place.
+const assertionWarnings = [];
+for (const ev of evals) {
+  for (const a of ev.assertions ?? []) {
+    if (a.verdict !== "discriminating" && VERDICT_NOTE[a.verdict]) {
+      assertionWarnings.push(`eval ${ev.eval_id}: "${a.text}" — ${VERDICT_NOTE[a.verdict]}`);
+    }
+  }
+}
 
 // ── Summary + payload ─────────────────────────────────────────────────────────
 
@@ -183,6 +263,7 @@ const payload = {
     delta_mean: withAvg !== null && baseAvg !== null ? round(withAvg - baseAvg) : null,
   },
   gate: { passed: failures.length === 0, failures },
+  assertion_warnings: assertionWarnings,
   comparison: {
     prior_timestamp: prior ? prior.timestamp : null,
     artifact_changed: artifactChanged,
