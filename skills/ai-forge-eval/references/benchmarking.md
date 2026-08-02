@@ -69,8 +69,10 @@ Write the captured trials to a scratch JSON, then pass its path to the script:
       "eval_id": 1,
       "prompt": "<eval prompt>",
       "trials": [
-        { "trial": 1, "arm": "with_artifact", "pass_rate": 0.8, "tokens": 12000, "duration_ms": 14200 },
-        { "trial": 1, "arm": "baseline",      "pass_rate": 0.4, "tokens": 9000,  "duration_ms": 9100 }
+        { "trial": 1, "arm": "with_artifact", "pass_rate": 0.8, "tokens": 12000, "duration_ms": 14200,
+          "expectations": [ { "text": "output has a Phase 1 header", "passed": true } ] },
+        { "trial": 1, "arm": "baseline",      "pass_rate": 0.4, "tokens": 9000,  "duration_ms": 9100,
+          "expectations": [ { "text": "output has a Phase 1 header", "passed": false } ] }
       ]
     }
   ]
@@ -78,6 +80,18 @@ Write the captured trials to a scratch JSON, then pass its path to the script:
 ```
 
 `tokens` = `subagent_tokens`, `duration_ms` from each notification's `<usage>` block; use `null` when absent.
+
+`expectations` is optional but worth including — it is the per-assertion grading from the assayer, verbatim (`text`, `passed`, `evidence`). When present in both arms, the script classifies each assertion by whether it actually discriminates between them:
+
+| Verdict | Meaning |
+|---|---|
+| `discriminating` | Passes with the artifact, fails without — real signal |
+| `non_discriminating` | Passes in both arms; measures the model, not the artifact |
+| `broken_or_unreachable` | Fails in both arms; broken assertion or beyond model capability |
+| `artifact_hurting` | Passes without the artifact but fails with it — **gates the benchmark** |
+| `flaky` | Inconsistent across trials |
+
+Non-discriminating assertions are the quiet failure: a suite made of them reports a healthy pass rate while measuring nothing. They surface in `assertion_warnings` rather than gating, since replacing them is an authoring decision.
 
 ## benchmark.json schema (script writes)
 

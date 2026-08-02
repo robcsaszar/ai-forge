@@ -11,9 +11,24 @@ Works for SKILL.md (skills) and .agent.md (agents). Same 5-phase flow; Phase 2 s
 
 ---
 
+## Phase 0 — Load or Write the Suite
+
+**MANDATORY — READ [`references/eval-suite.md`](references/eval-suite.md)** for the on-disk format, the trigger protocol, and the assertion-discrimination table.
+
+Check for `evals/evals.json` beside the artifact.
+
+- **Present** — load it and skip to Phase 2. Add cases if coverage is thin; never silently replace existing ones, or the trend breaks.
+- **Absent** — author it in Phase 1 and write it to `evals/evals.json` before spawning anything.
+
+A suite that lives only in this conversation cannot detect a regression next month. Persisting it is what makes the difference between an opinion and a test.
+
+---
+
 ## Phase 1 — Write Evals
 
-Write 2–3 eval cases. Each eval is a realistic prompt drawn from the artifact's stated trigger scenarios plus 3–5 assertions.
+Write 2–3 eval cases. Each eval is a realistic prompt plus 3–5 assertions.
+
+Prefer prompts drawn from a baseline probe (`ai-forge-create` Phase 1b) over the artifact's own stated triggers — assertions written from the artifact can only confirm it does what it claims. Carry each capture into the scenario's `baseline_failure` field.
 
 **For skills**: prompts that should activate the skill naturally. Assertions check skill-specific behaviors (e.g. "output includes a Phase 1 recap", "NEVER rule format has WHY and INSTEAD").
 
@@ -43,25 +58,14 @@ For each eval, spawn the **with-artifact and baseline runs in the same message**
 
 **With-artifact run**: give it the eval prompt. For skills: add "Use the `<skill-name>` skill for this task." For agents: paste the agent's full instructions as the system context.
 
-**Baseline run**: same eval prompt, no skill instruction, no agent context. Plain assistant response.
+**Baseline run**: depends on what is being measured.
 
-**Capture immediately on completion**: when each task notification arrives, read its `<usage>` block and record:
+- **New artifact** — same eval prompt, no skill instruction, no agent context. Plain assistant response.
+- **Improving an existing artifact** — snapshot the current version first (`cp -r <path> <scratch>/snapshot/`), then point the baseline at the snapshot. "No artifact" is the wrong control when the question is whether the change helped; it measures the artifact's existence, not the edit.
 
-- Which run (with / baseline), plus the trial index in benchmark mode
-- `duration_ms` and `subagent_tokens` from the notification's `<usage>` block — structured and exact, not estimated
-- If a notification carries no `<usage>` block, record `null` for that field; never substitute a wall-clock guess
+**Capture immediately on completion**: when each task notification arrives, record which run it was (plus trial index in benchmark mode) and read `duration_ms` and `subagent_tokens` from its `<usage>` block — exact, not estimated. No `<usage>` block means record `null`; never substitute a wall-clock guess. This data exists only at notification time and cannot be reconstructed afterward.
 
-Usage data exists only in the notification — capture on arrival, not after both complete.
-
-Store per eval:
-
-```text
-Eval 1:
-  with_artifact: [output text]
-  baseline: [output text]
-  duration_ms: { with: N, baseline: N }
-  tokens: { with: N, baseline: N }
-```
+Store per eval: `with_artifact` and `baseline` output text, plus `duration_ms` and `tokens` for each arm.
 
 ---
 
@@ -87,6 +91,20 @@ Assayer returns per expectation:
 Compute `pass_rate = passed / total` per run.
 Compute `delta = with_artifact.pass_rate - baseline.pass_rate`.
 
+Then **classify each assertion** by how it behaves across both arms — passes in both (measures the model, not the artifact), fails in both (broken or out of reach), passes with and fails without (real signal), fails with and passes without (the artifact is hurting), or high variance (flaky). See the table in [`references/eval-suite.md`](references/eval-suite.md). A suite whose assertions all pass in both arms reports a healthy pass rate and tells you nothing.
+
+Also read the transcript, not just the output: did the run actually follow the artifact, or reach the right answer despite it? Work the artifact caused that produced nothing is a cut candidate.
+
+---
+
+## Phase 3b — Human Review
+
+Before analyzing anything yourself, put the raw outputs in front of the user.
+
+Fill [`assets/eval-review.html`](assets/eval-review.html) — substitute `__ARTIFACT_NAME__` and `__EVAL_DATA__` (a JSON array of `{id, name, prompt, with_artifact, baseline, assertions}`) and write it beside the eval suite. Surface it with a file-delivery tool if available; otherwise give the user the path. Read the exported `feedback.json` when they're done.
+
+The model grading its own artifact's output is the weakest signal here — a human glance catches what no assertion was written to catch. Skip only if the user declines.
+
 ---
 
 ## Phase 4 — Compare (optional)
@@ -101,6 +119,8 @@ Arbiter input: Output A (unlabeled), Output B (unlabeled), expectations list. Re
 
 Arbiter returns: content score (1–5), structure score (1–5), winner (A/B/tie), rationale, strengths/weaknesses per side.
 
+**Ship gate when comparing two versions**: ship only if the new version **wins or ties every scenario, and wins at least one**. A version that wins big on one case and loses on another has traded one failure for a different one — that is not an improvement, and the aggregate delta will hide it.
+
 ---
 
 ## Phase 5 — Analyze + Report
@@ -111,21 +131,19 @@ If Phase 4 was skipped: go directly to benchmark table.
 
 Refiner input: arbiter output + label mapping `{ "A": "with_artifact", "B": "baseline" }` (or reversed). Refiner explains why winner beat loser and surfaces 1–3 prioritized improvements.
 
-**Render benchmark table**:
-
-```text
-## Eval Results — <artifact-name>
-
-| Eval | with_artifact | baseline | delta | duration_ms (with / base) |
-|------|---------------|----------|-------|---------------------------|
-| 1    | 4/5 (80%)     | 2/5 (40%)| +40%  | 12000 / 9000              |
-| 2    | 5/5 (100%)    | 3/5 (60%)| +40%  | 14000 / 8000              |
-| Avg  | 90%           | 50%      | +40%  |                           |
-```
-
-If refiner ran, append improvement suggestions beneath the table.
+**Render benchmark table** — one row per eval plus an `Avg` row, columns `Eval | with_artifact | baseline | delta | duration_ms (with / base)`, pass counts and percentages per arm. Append any non-discriminating or hurting assertions flagged in Phase 3, then the refiner's improvement suggestions if it ran.
 
 If delta is negative on any eval, flag: "Artifact may be hurting performance — review trigger phrasing or scope constraints."
+
+---
+
+## Phase 6 — Trigger Check
+
+Behavioral evals answer "does it work when invoked." This answers "does it get invoked" — the more common failure, and invisible to every phase above.
+
+Run when the suite has a `triggers` block, or offer it after Phase 5. **MANDATORY — READ [`references/eval-suite.md`](references/eval-suite.md)** for the protocol, the 60/40 holdout split, and the query-quality bar. Do NOT load it for a behavioral-only run.
+
+Report recall and precision per split (train and held-out) plus the specific misses and false positives. Low recall with high precision means the description is too narrow — widen it. The reverse means it is poaching adjacent tasks — add negative triggers.
 
 ---
 
@@ -135,10 +153,10 @@ Trigger when the user asks to benchmark, track regression, or gate on trend. Ben
 
 MANDATORY READ: [`references/benchmarking.md`](references/benchmarking.md) before running — trial protocol, aggregation formulas, gating thresholds, and the trial-results + `benchmark.json` schemas live there. Do NOT load it for a plain single-run eval.
 
-- **Trials** — run each eval N times (default 3). Per eval, spawn all N trial-pairs (2N subagents) in ONE message, drain that eval's notifications capturing `<usage>` per Phase 2, then move to the next eval. Never spawn every eval's trials at once.
-- **Aggregate** — write the per-trial results to a scratch JSON, then run `node scripts/aggregate-benchmark.cjs --trials <scratch.json> --prior benchmarks/<artifact-name>.json --artifact <path>`. It returns per-eval mean/std-dev, flaky flags, deltas vs the prior run, and a gate verdict. When the artifact's content hash differs from the prior run, deltas are labelled "artifact changed" — read them as your edits, not drift.
+- **Trials** — each eval runs N times (default 3). Per eval, spawn all N trial-pairs (2N subagents) in ONE message, drain that eval's notifications capturing `<usage>` per Phase 2, then move to the next eval. Never spawn every eval's trials at once.
+- **Aggregate** — `node scripts/aggregate-benchmark.cjs --trials <scratch.json> --prior benchmarks/<artifact-name>.json --artifact <path>` returns per-eval mean/std-dev, flaky and discrimination flags, deltas vs the prior run, and a gate verdict.
 - **Persist** — save the returned payload to `benchmarks/<artifact-name>.json` (committed) as the new trend baseline.
-- **Report** — render the Phase 5 table with mean±std-dev columns (`with mean±std`, `baseline mean±std`, `delta`, `flaky`) and append the gate verdict. On gate fail, verdict is "regressed — not ready".
+- **Report** — Phase 5 table with mean±std-dev columns plus the gate verdict. On gate fail, verdict is "regressed — not ready".
 
 ---
 
@@ -155,6 +173,14 @@ MANDATORY READ: [`references/benchmarking.md`](references/benchmarking.md) befor
 - **NEVER report a single trial as a benchmark**
   **Instead:** Run at least N=3 trials so mean and std-dev are meaningful.
   **Why:** A lone pass_rate looks precise but hides flakiness — a skill that truly passes a third of the time can read 100% or 0% on one trial.
+
+- **NEVER weaken a scenario that a with-artifact run failed**
+  **Instead:** Strengthen the body until the run passes the scenario as written.
+  **Why:** The scenario is the record of a real failure. Softening it makes the eval green while the failure it was built to catch survives untouched.
+
+- **NEVER tune a description against the held-out trigger queries**
+  **Instead:** Iterate on the train split; look at held-out only to select the final version.
+  **Why:** A description tuned against its own test set scores well and generalizes worse — you lose the only unbiased estimate you had.
 
 - **NEVER write subjective assertions** ("output is clear", "well-formatted", "thorough")
   **Instead:** Verifiable from the text: "output includes 'Phase 1' heading", "no NEVER rule missing a WHY clause"

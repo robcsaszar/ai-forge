@@ -18,7 +18,14 @@ Understand before touching. Confirm before applying. Judge what you've done.
 - **For agents:** identify the target platform from the file path and extension using the table in [`ai-forge-create/references/agents-taxonomy.md`](../ai-forge-create/references/agents-taxonomy.md), then read that platform's section for frontmatter schema, file naming, line limits, and key constraints. Supported platforms: Claude Code (`.claude/agents/*.md`), GitHub Copilot (`.github/agents/*.agent.md`), OpenAI Codex (`.codex/agents/*.toml`), Google Gemini (`.gemini/agents/*.md` or `.gemini/skills/*/SKILL.md`).
 - **For skills:** reference the bundled spec at `ai-forge-judge/references/agentskills-spec.md` for frontmatter validation.
 
-> **Porting to another platform?** That's a conversion, not an update — read [`ai-forge-create/references/conversion-guide.md`](../ai-forge-create/references/conversion-guide.md) and transform by hand into a **new** target-platform file. It is not automated, and unlike a normal update it does not write back to the source path.
+> **Porting to another platform?** That's a conversion, not an update — it produces a **new** target-platform file and never writes back to the source path. Run the disposition report first:
+>
+> ```sh
+> node ../ai-forge-create/scripts/validate-metadata.cjs --name "<n>" --description "<d>" \
+>   --target codex --artifact agent
+> ```
+>
+> Apply the PORTABLE and DROPPED rows mechanically. Feed the **DECIDE** rows — model IDs, tool names, effort enums, anything with no bijective mapping — to `ai-forge-apply` as a numbered list so each is an explicit human choice. Never guess one silently; a wrong tool name fails loudly, but a wrong model ID just quietly costs more or reasons worse. Field-level detail is in [`ai-forge-create/references/conversion-guide.md`](../ai-forge-create/references/conversion-guide.md); write the DROPPED and DECIDE rows to `MIGRATION-NOTES.md` beside the ported file.
 
 Identify the target artifact. The user may name it, paste a path, or point to it in context.
 
@@ -58,6 +65,12 @@ On `(n)`: ask what's incorrect, revise the recap, and re-confirm before proceedi
 
 **Goal**: A numbered change list that is specific, unambiguous, and consistent with the existing artifact. Do not touch the file until the list is confirmed.
 
+**Read the evidence first.** If `evals/` results, benchmark output, or run transcripts exist for this artifact, read them before asking what to change. Observed friction beats recalled friction — what a user remembers going wrong and what actually went wrong routinely differ, and only one of them is in the transcript.
+
+**MANDATORY — READ [`references/iteration-guide.md`](references/iteration-guide.md)** before eliciting: how to size the change (iterate vs redesign), and how to translate a reported symptom into an actual edit.
+
+If the change is a redesign — wrong phases, wrong scope, over half the body moving — say so and hand off to `ai-forge-create` rather than patching.
+
 ### Loop
 
 Elicit changes, paraphrase back with the updated change list and consistency check, then ask:
@@ -96,6 +109,8 @@ After each response, produce:
 **Scope unclear**: "Make it shorter" without specifying what to cut; "improve it" without specifying how. Resolve to specific sections or criteria before adding to the list.
 
 Loop does not advance on ambiguity. Every item in the confirmed list must be independently actionable.
+
+**One behavior per iteration.** Changing three things and re-running tells you the aggregate moved, not which change moved it. Re-run the artifact's `evals/` suite after every change and treat a failure as a regression.
 
 ---
 

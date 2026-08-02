@@ -62,6 +62,30 @@ Sections covered in the checklist:
 6. Failure Modes & Recovery
 7. Testing & Observability
 
+## Refutation Pass
+
+After the sequence and before the verdict, stop asking and start attacking. The sequence is collaborative; this is not. Work the charge **in severity order** and stop at the first level that yields a blocker:
+
+1. **Facts** — verify every command, path, tool name, and platform claim against real docs or the codebase. False guidance is worse than absent guidance: the author trusts it and stops checking.
+2. **Over-triggering** — name **three realistic requests** where this artifact would activate but shouldn't. A roster has dozens of competitors; an artifact that fires on adjacent work is a tax on all of them.
+3. **Misleading guidance** — find one concrete case where following the artifact literally produces a *worse* outcome than ignoring it.
+4. **Gaps** — the most probable real-world task variant the guidance cannot handle.
+5. **Structure** — description/body alignment, content in the wrong layer, sections nothing reaches.
+
+Every finding names a **concrete failing case**, not an opinion, and carries one label:
+
+| Label | Meaning | Disposition |
+|---|---|---|
+| **blocker** | Demonstrably breaks or misleads | Must be fixed before shipping |
+| **should-fix** | Real cost, not fatal | Fix if it fits the budget; otherwise record as a known limitation |
+| **note** | Author's discretion | No action required |
+
+**No numeric scores here.** Scoring is `ai-forge-judge`'s job, and mixing the two invites arguing the number instead of the finding.
+
+Cap the loop at **3 revise-and-recheck cycles**. If a blocker survives three rounds, stop and put both positions to the user — a fourth round is the reviewer and author disagreeing about judgment, not about evidence.
+
+> **Why one adversarial pass and not a panel:** several agents of the same model, prompted by an author who wants approval, converge on approval. Unanimity from a panel like that measures agreement, not quality. One reviewer charged to *refute* is the stronger instrument.
+
 ## After the Review
 
 Once all branches are resolved, output the verdict block:
@@ -88,7 +112,7 @@ Flag these immediately when spotted:
 
   ```text
   BAD:  "Help users with their code. Tools: all"
-  GOOD: "Validate mandator JSON against MandatorSettings type. Tools: read_file, grep"
+  GOOD: "Validate config JSON against the declared schema type. Tools: read_file, grep"
   ```
 
 - **"The Copy-Paste"**: Instructions copied from ChatGPT/Claude with no adaptation. *Fix: Rewrite using actual file paths, tool names, and project conventions.*
@@ -100,8 +124,8 @@ Flag these immediately when spotted:
   ```text
   BAD:  "You are a helpful assistant that carefully reviews code to ensure
          it meets the highest standards of quality and maintainability..."
-  GOOD: "Review code for: type errors, missing null checks, mandator merge
-         operator misuse. Output: file:line — issue — fix."
+  GOOD: "Review code for: type errors, missing null checks, unsafe merge
+         operator use. Output: file:line — issue — fix."
   ```
 
 - **"The Hallucination Echo"**: References capabilities or tools that don't exist. *Fix: Verify every tool name, file path, and API reference exists.*

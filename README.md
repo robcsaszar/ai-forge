@@ -56,7 +56,7 @@ cp -r skills/ai-forge-judge /path/to/project/.claude/skills/
 
 ## Safety
 
-`ai-forge-create` and `ai-forge-eval` ship small helper scripts. Read [SAFETY.md](SAFETY.md) for what each does.
+`ai-forge-create`, `ai-forge-audit`, and `ai-forge-eval` ship small helper scripts. Read [SAFETY.md](SAFETY.md) for what each does.
 
 ## License
 

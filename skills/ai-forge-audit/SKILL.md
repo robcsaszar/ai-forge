@@ -13,6 +13,20 @@ Requires the `ai-forge-judge` skill. If it is not available in this environment 
 
 ## Workflow
 
+### Phase 0 — Coherence
+
+Run before grading anything:
+
+```sh
+node scripts/check-ecosystem.cjs --roots <comma-separated roots>
+```
+
+It returns JSON with `errors` and `warnings` across six roster-level checks that no per-artifact grade can see: trigger collisions (description keyword overlap), duplicate and shadowed names, name/directory mismatches, stale reference links, orphaned reference files, dated model pins, and body word budgets.
+
+These are properties of the roster, not of any single artifact. Eight skills can each score an A while two of them compete for every trigger and a third points at a file someone deleted.
+
+Render the findings as an `## Ecosystem` section above the grade summary. If the script is missing or errors, note it and continue to Phase 1 — coherence is additive, not a gate.
+
 ### Phase 1 — Discover
 
 Discovery is **platform-agnostic** — scan every platform's roots, not just Claude's. Two constraints shape how:
@@ -77,6 +91,15 @@ Output a single markdown report:
 # AI Forge Audit
 _<YYYY-MM-DD> — <N> artifacts evaluated (<S> skills, <A> agents)_
 
+## Ecosystem
+
+| Check | Artifacts | Finding |
+|-------|-----------|---------|
+| trigger_collision | ai-forge-X, ai-forge-Y | keyword overlap 0.52 — compete for the same triggers |
+| stale_reference | ai-forge-Z | links `references/gone.md` but the file does not exist |
+
+_No ecosystem issues found._ ← when clean
+
 ## Grade Summary
 
 | Artifact | Type | Grade | Score |
@@ -126,6 +149,10 @@ If nothing was skipped: omit the "Skipped" section.
 - **NEVER apply any fixes during an audit run**
   **Instead:** Output the report only. Direct the user to `ai-forge-apply` or `ai-forge-update` for remediation.
   **Why:** Mixing diagnosis with treatment makes it impossible to know what the baseline was.
+
+- **NEVER report per-artifact grades without the coherence pass**
+  **Instead:** Run Phase 0 first and render its findings above the grade summary.
+  **Why:** Grades are per-artifact by construction. A roster where every skill scores A can still be unroutable because two descriptions compete, and no grade will ever show it.
 
 - **NEVER sort by name or alphabetically**
   **Instead:** Sort by grade ascending (F first, A last) within each section.

@@ -9,6 +9,16 @@ Write skills and agents that score ≥B on ai-forge-judge out of the box. Every 
 
 ---
 
+## Phase 0 — Dedup
+
+Before anything else, check whether this already exists. Glob the platform roots listed in [`ai-forge-audit`](../ai-forge-audit/SKILL.md) Phase 1 and compare names and descriptions against the request.
+
+- **Strong match** (same domain and overlapping triggers) — surface it and stop: "`<name>` already covers this. Options — (u)pdate it via ai-forge-update, (c)reate anyway with a narrower scope, or (q)uit." An explicit "create a skill" request plus a strong match is a reason to challenge, not to comply.
+- **Partial match** — name it, then continue; the new artifact must state how it differs in its own description.
+- **No match** — continue silently.
+
+---
+
 ## Phase 1 — Discovery
 
 Build understanding through a running recap. Ask questions to fill gaps; after each exchange, show the current recap:
@@ -33,7 +43,17 @@ Then ask: `(a)ccept / (r)evise / (q)uit`
 
 Do not proceed to Phase 2 until the user accepts the recap. Domain, artifact type, and failure modes must be filled before accepting. **Platform must also be resolved** — it drives frontmatter schema, file location, and invocation constraints for both agents and skills.
 
-> **Porting an existing artifact to another platform?** That's a *conversion*, not authoring — read [`references/conversion-guide.md`](references/conversion-guide.md) and transform by hand. Conversion is not automated.
+> **Porting an existing artifact to another platform?** That's a *conversion*, not authoring — hand off to `ai-forge-update`, which runs the target disposition report and steps the judgment calls through approval. The per-field mappings live in [`references/conversion-guide.md`](references/conversion-guide.md).
+
+---
+
+## Phase 1b — Baseline Probe
+
+**MANDATORY — READ [`references/baseline-probe.md`](references/baseline-probe.md)** before drafting.
+
+Spawn 1–2 fresh subagents on representative tasks **without** the artifact and record verbatim what they get wrong. Phase 1 collects failure modes the author asserts; this collects the ones that occur.
+
+If the baseline succeeds, say so and offer to stop — a clean baseline means the artifact may not need to exist. The capture feeds three places: description keywords, guidance form, and eval assertions. Skip only when the user declines after being told what the skip costs.
 
 ---
 
@@ -44,6 +64,8 @@ Do not proceed to Phase 2 until the user accepts the recap. Domain, artifact typ
 **For Agents**: MANDATORY — READ [`references/agent-patterns.md`](references/agent-patterns.md) before selecting a pattern. Do NOT load this file for skills.
 
 Select one pattern. State your choice and the one-line reason before drafting. If no pattern clearly fits, default to Process and note: "Pattern: Process (closest fit — no exact match for this domain)."
+
+Let the Phase 1b failure type inform the choice — the failure-form table in [`references/baseline-probe.md`](references/baseline-probe.md) constrains which guidance shapes will work.
 
 ---
 
@@ -59,20 +81,17 @@ Write to earn tokens. For every **sentence**, ask: **"Does Claude already know t
 
 Before writing each line, ask: **"What failure mode does this prevent?"** If you can't answer, delete it.
 
-### Leading words
-
-A _leading word_ is a compact pretrained concept that anchors a region of behaviour — e.g. _fog of war_, _tracer bullets_, _red loop_. Repeat the token, not the meaning. Each repetition recruits the model's existing priors and accumulates a distributed definition without spending definition tokens.
-
-Leading words serve double duty: in the body they anchor execution (same behaviour each run); in the description they anchor invocation (a description that shares a word with the user's prompt triggers more reliably — use the exact words you would type when triggering the skill).
-
-Hunt for collapses: "fast, deterministic, low-overhead" → _tight_. Every collapse is tokens freed and the agent's hook sharpened.
+**MANDATORY — READ [`references/drafting-craft.md`](references/drafting-craft.md)** for leading words, degrees of freedom, completion criteria, and the NEVER rule format.
 
 ### Description requirements (THE most critical field)
 
 - Answers WHAT (what does it do?)
 - Answers WHEN (trigger scenarios — "Use when...", "Trigger phrases:")
-- Contains searchable KEYWORDS (domain terms, file extensions, action verbs)
+- Contains searchable KEYWORDS (domain terms, file extensions, action verbs) — prefer the words the Phase 1b baseline agent used, since those are what a real user types
 - Max 1024 chars (hard limit); concise and actionable for agents
+- **Counteract under-triggering** — the common failure is a skill that never fires, not one that fires too often. Be slightly pushy: "Use whenever the user mentions X, even if they don't ask for Y by name." Pair it with a negative trigger so the extra reach stays bounded
+- **Describe triggers, not the workflow** — a description that narrates the steps gets acted on directly and the agent skips the body. State the conditions under which to load it; the body states what to do
+- **`when_to_use` is optional overflow, not a second description** — Claude Code truncates `description` + `when_to_use` combined at **1,536 chars** in the skill listing, so anything past that is silently cut. Keep the load-bearing triggers in `description`
 - **Single-line value** — NEVER use YAML multiline (`|` or `>`)
 - **No colons** — rephrase "X: Y" as "X — Y" or "X (Y)"; unescaped colons break frontmatter
 - **No XML angle brackets** (`<`, `>`) anywhere in frontmatter — enables prompt injection
@@ -81,39 +100,17 @@ Hunt for collapses: "fast, deterministic, low-overhead" → _tight_. Every colla
 - One trigger per distinct scenario — synonyms that rename the same branch are duplication
 - Model-invoked vs user-invoked: if `disable-model-invocation: true`, description is human-facing only — strip trigger phrasing, no KEYWORDS needed
 
-### Degrees of freedom
-
-Match specificity to task fragility:
-
-| Freedom | Form | When |
-|---------|------|------|
-| High | Text instructions | Multiple valid approaches; context decides |
-| Medium | Pseudocode or parameterised scripts | Preferred pattern with acceptable variation |
-| Low | Exact scripts, no parameters | Fragile ops, must-follow sequence, data migrations |
-
-A code review needs High. A database migration needs Low.
-
-### Completion criteria (step-based skills)
-
-Every step ends on a completion criterion — the condition that tells the agent the work is done. Make it **checkable** (can the agent tell done from not-done?) and **exhaustive** ("every modified file reviewed", not "produce a list"). A vague criterion invites premature completion: visible later steps pull the agent forward before the current one is finished. If a criterion is irreducibly fuzzy and rushing is observed, split the sequence — hide later steps in a separate Phase or file so they are not yet in context.
-
-### Line limits
+### Size limits
 
 | Artifact | Body limit | Overflow strategy |
 |----------|-----------|-------------------|
-| Skill SKILL.md | 200 lines | Split to `references/` with MANDATORY READ triggers |
-| Agent .agent.md | 300 lines | No overflow — must be self-contained |
+| Skill SKILL.md | 200 lines / ~1,800 words | Split to `references/` with MANDATORY READ triggers |
+| Agent .agent.md | 300 lines / ~2,700 words | No overflow — must be self-contained |
 | Instruction file | 150 lines | Keep lean — loads eagerly on glob match |
 
-### NEVER rules format — every NEVER must have
+Check with `wc -l` and `wc -w`. Words are what actually load; lines are the eyeball proxy. The two numbers are set to bind at roughly the same point (markdown prose runs 6–9 words per line) — if one limit fired far earlier than the other, the looser one would be decoration.
 
-```text
-- **NEVER [specific construct/pattern]**
-  **Instead:** [concrete alternative]
-  **Why:** [non-obvious failure mode this avoids]
-```
-
-Vague warnings ("be careful", "avoid errors") are prohibited.
+The 200-line skill budget is a deliberate house rule well under the spec's 500-line ceiling: a pack about token economy holds itself tighter than the limit.
 
 **For Skills** — MANDATORY READ [`references/skills-taxonomy.md`](references/skills-taxonomy.md) for: directory structure, progressive disclosure, scripts guidelines, and skill frontmatter optional fields. Do NOT load this file for agents.
 
@@ -149,7 +146,11 @@ After Phase 5 resolves, offer behavioral validation:
 
 > "Want to verify this works end-to-end? Say 'test this' to run `ai-forge-eval` with 2–3 sample prompts."
 
-`ai-forge-eval` spawns parallel with-artifact vs baseline agents, grades outputs against assertions, and shows a pass_rate delta. Recommended for Process and Tool pattern artifacts; optional for Mindset/Navigation/Philosophy.
+`ai-forge-eval` spawns parallel with-artifact vs baseline agents, grades outputs against assertions, and shows a pass_rate delta. It writes the suite to `evals/evals.json` so it can be re-run as a regression test after every future change.
+
+Carry the Phase 1b captures forward — each becomes a scenario's `baseline_failure`, and the assertion is that it no longer occurs.
+
+Recommended for Process and Tool pattern artifacts, and any artifact whose output is objectively verifiable. Optional for Mindset/Navigation/Philosophy, where qualitative review beats assertions.
 
 ---
 
@@ -180,6 +181,14 @@ MANDATORY — run `node scripts/validate-metadata.cjs --name "<name>" --descript
 - **NEVER manually apply ai-forge-judge findings one-by-one**
   **Instead:** Invoke `ai-forge-apply` on the numbered improvements list.
   **Why:** Manual application skips the approval loop and defeats the purpose of the numbered format.
+
+- **NEVER use `<details>` blocks to "save context"**
+  **Instead:** Move the content to `references/` with a MANDATORY READ trigger.
+  **Why:** Collapsing is a rendering affordance for humans. An agent receives the full expanded text either way, so the block costs exactly as many tokens as the content it hides.
+
+- **NEVER pin a dated model ID** (`claude-*-20250101`) in a shipped artifact
+  **Instead:** Use a family alias (`sonnet`, `opus`, `haiku`) or omit the field.
+  **Why:** Dated IDs are deprecated on a schedule the artifact doesn't control; the skill breaks on a date nobody wrote down.
 
 - **NEVER add README.md, CHANGELOG.md, or documentation about the artifact itself**
   **Instead:** Include only what the agent needs to perform the task.

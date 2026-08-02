@@ -1,6 +1,6 @@
 ---
 name: ai-forge-judge
-description: "Evaluate any LLM prompt (SKILL.md, agent definition, system prompts, instruction files) for quality: grouped dimensional scoring with letter grade and step-through-ready numbered improvements list. Triggers are judge/review/audit/score/evaluate this skill or prompt, grade this agent."
+description: "Evaluate any LLM prompt (SKILL.md, agent definition, system prompts, instruction files) for quality — grouped dimensional scoring with letter grade and step-through-ready numbered improvements list. Triggers are judge/review/audit/score/evaluate this skill or prompt, grade this agent. Don't use for behavioral testing — that's ai-forge-eval."
 ---
 
 # AI Forge Judge
@@ -47,7 +47,7 @@ Dimensions are grouped. Universal dimensions always apply. Type-specific modules
 |----|-----------|-----|
 | U1 | Knowledge/Instruction Delta | 20 |
 | U2 | Mindset + Procedures | 15 |
-| U3 | Anti-Pattern Quality | 15 |
+| U3 | Constraint Quality | 15 |
 | U4 | Freedom Calibration | 15 |
 | U5 | Practical Usability | 15 |
 
@@ -177,8 +177,8 @@ ai-forge-judge can and should evaluate itself. The criteria must be self-consist
   **INSTEAD:** Trace each branch to verify it terminates with a clear action.
 - **NEVER** forgive explaining basics with "but it provides helpful context"
   **INSTEAD:** Mark the section [R] and deduct from U1.
-- **NEVER** overlook missing anti-patterns — absence of a NEVER list usually means the author hasn't hit the failure modes yet
-  **INSTEAD:** Note "NEVER list absent" as a Critical Issue and deduct from U3.
+- **NEVER** treat the presence of a NEVER list as evidence of quality, or its absence as a defect
+  **INSTEAD:** Ask whether the domain has recurring failure modes and whether they're addressed in *any* form. Score the justification. A constraint carried by explained reasoning beats the same constraint asserted as a prohibition, and a wall of low-value NEVERs dilutes the ones that matter.
 - **NEVER** undervalue the description field for Skills — it is the only thing the agent sees before deciding whether to load
   **INSTEAD:** Score S1 harshly for vague or keyword-poor descriptions.
 - **NEVER** compare percentage scores across evaluations without checking which groups were scored
