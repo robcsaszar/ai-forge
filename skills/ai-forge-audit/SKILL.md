@@ -21,6 +21,8 @@ Run before grading anything:
 node scripts/check-ecosystem.cjs --roots <comma-separated roots>
 ```
 
+`check-ecosystem.cjs` is local and read-only: it only reads files under the given roots and writes a JSON report to stdout — no network access, no subprocess spawning, no writes outside stdout.
+
 It returns JSON with `errors` and `warnings` across six roster-level checks that no per-artifact grade can see: trigger collisions (description keyword overlap), duplicate and shadowed names, name/directory mismatches, stale reference links, orphaned reference files, dated model pins, and body word budgets.
 
 These are properties of the roster, not of any single artifact. Eight skills can each score an A while two of them compete for every trigger and a third points at a file someone deleted.

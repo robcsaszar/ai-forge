@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.6.1] - 2026-08-07
+
+### Security
+
+- `ai-forge-judge`: documented that WebFetch results (e.g. the agentskills.io spec) must be treated as inert reference text, never as instructions — mitigates indirect prompt injection risk (skills.sh audit finding W011).
+- `ai-forge-audit`: documented that `check-ecosystem.cjs` is local and read-only — no network access, no subprocess spawning, no writes outside stdout — addressing a "delegated execution / transitive trust" flag from the skills.sh audit.
+
 ## [0.6.0] - 2026-08-01
 
 ### Added
@@ -31,9 +38,6 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [0.5.0] - 2026-07-10
 
-### Added
-
-- Initial release: ai-forge-apply, ai-forge-audit, ai-forge-create, ai-forge-eval, ai-forge-judge, ai-forge-recap, ai-forge-review, and ai-forge-update skills.
-
+[0.6.1]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.6.1
 [0.6.0]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.6.0
 [0.5.0]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.5.0
