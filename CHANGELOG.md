@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.6.2] - 2026-08-07
+
+### Changed
+
+- `ai-forge-audit`, `ai-forge-create`, `ai-forge-eval`: reformatted `check-ecosystem.cjs`, `validate-metadata.cjs`, and `aggregate-benchmark.cjs` to single-quote/no-semicolon-trailing-comma style with lint-disable annotations; no behavioral changes.
+
 ## [0.6.1] - 2026-08-07
 
 ### Security
@@ -38,6 +44,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [0.5.0] - 2026-07-10
 
+[0.6.2]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.6.2
 [0.6.1]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.6.1
 [0.6.0]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.6.0
 [0.5.0]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.5.0
