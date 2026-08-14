@@ -21,15 +21,13 @@ Run before grading anything:
 node scripts/check-ecosystem.cjs --roots <comma-separated roots>
 ```
 
-If it **cannot run** (no `node`, script missing, usage error), continue to the per-artifact grading but head the report with `⚠ roster-level checks skipped — validator unavailable: <reason>`; the six roster checks below are exactly what per-artifact grades cannot see, so their absence must be visible. Reported `errors` always block until resolved.
-
 `check-ecosystem.cjs` is local and read-only: it only reads files under the given roots and writes a JSON report to stdout — no network access, no subprocess spawning, no writes outside stdout.
 
 It returns JSON with `errors` and `warnings` across six roster-level checks that no per-artifact grade can see: trigger collisions (description keyword overlap), duplicate and shadowed names, name/directory mismatches, stale reference links, orphaned reference files, dated model pins, and body word budgets.
 
 These are properties of the roster, not of any single artifact. Eight skills can each score an A while two of them compete for every trigger and a third points at a file someone deleted.
 
-Render the findings as an `## Ecosystem` section above the grade summary. If the script is missing or errors, note it and continue to Phase 1 — coherence is additive, not a gate.
+Render the findings as an `## Ecosystem` section above the grade summary. If the script is missing or errors, head the section with `⚠ roster-level checks skipped — validator unavailable: <reason>` and continue to Phase 1 — coherence is additive, not a gate, but its absence must be visible, since these checks are exactly what per-artifact grades cannot see.
 
 ### Phase 1 — Discover
 

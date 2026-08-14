@@ -12,7 +12,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
 ### Changed
 
 - `ai-forge-create`, `ai-forge-eval`, `ai-forge-recap`, `ai-forge-review`, `ai-forge-update`: descriptions rewritten as trigger conditions rather than workflow summaries, so the router cannot act on the description in place of loading the body.
-- `ai-forge-audit`, `ai-forge-create`, `ai-forge-eval`: added failure branches for their validator scripts. A validator that runs and rejects still blocks; a validator that cannot run (missing `node`, missing script, usage error) now degrades with a recorded `⚠ unvalidated` caveat instead of being an undefined state. Both cases currently exit `1`, so the branches key on the error text — giving the scripts a distinct exit code remains open.
+- `ai-forge-create`, `ai-forge-eval`: added failure branches for their validator scripts. A validator that runs and rejects still blocks; a validator that cannot run (missing `node`, missing script, usage error) now degrades with a recorded `⚠ unvalidated` caveat instead of being an undefined state. Both cases currently exit `1`, so the branches key on the error text — giving the scripts a distinct exit code remains open.
+- `ai-forge-audit`: already had a failure path for `check-ecosystem.cjs`; it now stamps `⚠ roster-level checks skipped` on the report rather than only noting the skip, since the six roster checks are precisely what per-artifact grades cannot see.
 - `ai-forge-create`: `assets/SKILL.template.md` is now referenced from the body; it was previously unreachable.
 
 ## [0.6.2] - 2026-08-07
