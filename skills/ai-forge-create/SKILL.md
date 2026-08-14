@@ -1,6 +1,6 @@
 ---
 name: ai-forge-create
-description: "Create a new skill (SKILL.md), agent definition, or instruction file via discovery recap, pattern selection, knowledge delta discipline, ai-forge-judge + ai-forge-apply quality gate. Use when converting ad-hoc knowledge into a reusable skill, scaffolding an agent for Claude Code, GitHub Copilot, OpenAI Codex, or Google Gemini, or creating instruction files for glob-pattern matching. Don't use for updating existing artifacts — use ai-forge-update for that. Triggers are create a skill, write a skill, new skill, SKILL.md, build a skill, create an agent, new agent, scaffold an agent."
+description: "Create a new skill (SKILL.md), agent definition, or instruction file. Use when converting ad-hoc knowledge into a reusable skill, scaffolding an agent for Claude Code, GitHub Copilot, OpenAI Codex, or Google Gemini, or creating instruction files for glob-pattern matching. Don't use for updating existing artifacts — use ai-forge-update for that. Triggers are create a skill, write a skill, new skill, SKILL.md, build a skill, create an agent, new agent, scaffold an agent."
 ---
 
 # AI Forge Create
@@ -156,7 +156,7 @@ Recommended for Process and Tool pattern artifacts, and any artifact whose outpu
 
 ## Review Checklist (before finalizing)
 
-MANDATORY — run `node scripts/validate-metadata.cjs --name "<name>" --description "<desc>"` before Phase 4. Cross-check against [`references/skill-checklist.md`](references/skill-checklist.md). If any item fails, fix before submitting to `ai-forge-judge`.
+MANDATORY — run `node scripts/validate-metadata.cjs --name "<name>" --description "<desc>"` before Phase 4. Cross-check against [`references/skill-checklist.md`](references/skill-checklist.md). If any item fails, fix before submitting to `ai-forge-judge`. If the script **cannot run** (no `node`, missing script, usage error — both cases exit `1`, so read the error text), walk the checklist by hand and mark the result `⚠ metadata unvalidated`. Start from [`assets/SKILL.template.md`](assets/SKILL.template.md).
 
 ---
 

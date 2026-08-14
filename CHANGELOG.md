@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.7.0] - 2026-08-14
+
+### Fixed
+
+- `ai-forge-apply`: description advertised "commits after each approved item", contradicting the body's NEVER rules, which forbid per-item commits and require a single opt-in commit after the loop. The description is the only text the router sees, so the contradiction was user-visible.
+- `ai-forge-update`: NEVER #5 ("never proceed to Phase 3 if apply applied zero changes") read as forbidding the zero-findings branch that Phase 3 itself defines. Scoped the rule to Phase 2's apply and stated that it does not govern Phase 3's own exit.
+
+### Changed
+
+- `ai-forge-create`, `ai-forge-eval`, `ai-forge-recap`, `ai-forge-review`, `ai-forge-update`: descriptions rewritten as trigger conditions rather than workflow summaries, so the router cannot act on the description in place of loading the body.
+- `ai-forge-audit`, `ai-forge-create`, `ai-forge-eval`: added failure branches for their validator scripts. A validator that runs and rejects still blocks; a validator that cannot run (missing `node`, missing script, usage error) now degrades with a recorded `⚠ unvalidated` caveat instead of being an undefined state. Both cases currently exit `1`, so the branches key on the error text — giving the scripts a distinct exit code remains open.
+- `ai-forge-create`: `assets/SKILL.template.md` is now referenced from the body; it was previously unreachable.
+
 ## [0.6.2] - 2026-08-07
 
 ### Changed

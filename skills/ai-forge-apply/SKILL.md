@@ -1,6 +1,6 @@
 ---
 name: ai-forge-apply
-description: "HITL (Human-In-The-Loop) application of a numbered list one item at a time — status board upfront, per-item approve/skip, approve-all mode, commits after each approved item. Use when stepping through ai-forge-judge findings or any numbered changes. Triggers are apply these, go through each one, apply improvements, commit each change. Don't use for bulk refactors, one-shot changes, or changes that don't need per-item review."
+description: "HITL (Human-In-The-Loop) application of a numbered list one item at a time — status board upfront, per-item approve/skip, approve-all mode, and one opt-in commit bundling all approved items after the loop. Use when stepping through ai-forge-judge findings or any numbered changes. Triggers are apply these, go through each one, apply improvements, step through these findings. Don't use for bulk refactors, one-shot changes, or changes that don't need per-item review."
 ---
 
 # AI Forge Apply (HITL)

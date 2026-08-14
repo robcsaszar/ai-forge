@@ -1,6 +1,6 @@
 ---
 name: ai-forge-recap
-description: "Read a skill or agent's body and report what it actually does vs. what the description claims — drift, undeclared behaviors, verdict. After the recap, offers context-sensitive actions (fix frontmatter via ai-forge-apply, hand off to ai-forge-update, run ai-forge-judge, or run ai-forge-review for agents). Use before updating a skill or agent. Triggers are recap [skill], what does [skill] do, audit [skill] description, summarize [skill]. Don't use for rewriting the artifact — that's ai-forge-update."
+description: "Report what a skill or agent actually does versus what its description claims — drift, undeclared behaviors, verdict. Use before updating a skill or agent, or when a description is suspected of being out of date. Triggers are recap [skill], what does [skill] do, audit [skill] description, summarize [skill]. Don't use for rewriting the artifact — that's ai-forge-update."
 ---
 
 # AI Forge Recap

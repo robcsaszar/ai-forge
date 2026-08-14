@@ -21,6 +21,8 @@ Run before grading anything:
 node scripts/check-ecosystem.cjs --roots <comma-separated roots>
 ```
 
+If it **cannot run** (no `node`, script missing, usage error), continue to the per-artifact grading but head the report with `⚠ roster-level checks skipped — validator unavailable: <reason>`; the six roster checks below are exactly what per-artifact grades cannot see, so their absence must be visible. Reported `errors` always block until resolved.
+
 `check-ecosystem.cjs` is local and read-only: it only reads files under the given roots and writes a JSON report to stdout — no network access, no subprocess spawning, no writes outside stdout.
 
 It returns JSON with `errors` and `warnings` across six roster-level checks that no per-artifact grade can see: trigger collisions (description keyword overlap), duplicate and shadowed names, name/directory mismatches, stale reference links, orphaned reference files, dated model pins, and body word budgets.

@@ -1,6 +1,6 @@
 ---
 name: ai-forge-eval
-description: "Behavioral eval for skills and agents — spawn parallel with-artifact vs baseline agents, grade outputs with assertions, compare via blind A/B, analyze wins/losses. Benchmark mode adds repeated trials (mean plus std-dev), a persisted trend store, and regression gating vs the last run. Use when verifying a skill or agent actually works in practice beyond rubric scoring. Triggers are test this skill, test this agent, eval this, does this skill work, behavioral eval, run eval, benchmark, benchmark this skill, track regression, verify outputs, does this agent work. Don't use for rubric-only scoring — that's ai-forge-judge."
+description: "Behavioral eval for skills and agents — whether the artifact actually changes model behavior, not just whether it scores well on a rubric. Use when verifying a skill or agent works in practice, or when tracking its performance across repeated runs to catch regressions. Triggers are test this skill, test this agent, eval this, does this skill work, behavioral eval, run eval, benchmark, benchmark this skill, track regression, verify outputs, does this agent work. Don't use for rubric-only scoring — that's ai-forge-judge."
 ---
 
 # AI Forge Eval
@@ -154,7 +154,7 @@ Trigger when the user asks to benchmark, track regression, or gate on trend. Ben
 MANDATORY READ: [`references/benchmarking.md`](references/benchmarking.md) before running — trial protocol, aggregation formulas, gating thresholds, and the trial-results + `benchmark.json` schemas live there. Do NOT load it for a plain single-run eval.
 
 - **Trials** — each eval runs N times (default 3). Per eval, spawn all N trial-pairs (2N subagents) in ONE message, drain that eval's notifications capturing `<usage>` per Phase 2, then move to the next eval. Never spawn every eval's trials at once.
-- **Aggregate** — `node scripts/aggregate-benchmark.cjs --trials <scratch.json> --prior benchmarks/<artifact-name>.json --artifact <path>` returns per-eval mean/std-dev, flaky and discrimination flags, deltas vs the prior run, and a gate verdict.
+- **Aggregate** — `node scripts/aggregate-benchmark.cjs --trials <scratch.json> --prior benchmarks/<artifact-name>.json --artifact <path>` returns per-eval mean/std-dev, flaky and discrimination flags, deltas vs the prior run, and a gate verdict. If it **cannot run** (no `node`, script missing, usage error), report the raw per-trial results with `⚠ no aggregate — validator unavailable: <reason>` and do not hand-compute a gate verdict; a gate verdict is a claim about statistical significance and must not be estimated. A verdict of FAIL always blocks.
 - **Persist** — save the returned payload to `benchmarks/<artifact-name>.json` (committed) as the new trend baseline.
 - **Report** — Phase 5 table with mean±std-dev columns plus the gate verdict. On gate fail, verdict is "regressed — not ready".
 

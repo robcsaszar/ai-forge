@@ -1,6 +1,6 @@
 ---
 name: ai-forge-review
-description: "Critically review and stress-test agent, skill, or AI workflow definitions before they ship. Use whenever someone creates, modifies, or proposes an agent config, skill file, system prompt, or AI-powered workflow — including 'review this agent', 'check this skill', 'is this agent safe', or any request for feedback on an AI/LLM integration. Also trigger when someone mentions creating a new agent or skill, even before it is written — help them think before they build. Don't use for rubric scoring — that's ai-forge-judge."
+description: "Use whenever someone creates, modifies, or proposes an agent config, skill file, system prompt, or AI-powered workflow and it should be stress-tested before it ships — including 'review this agent', 'check this skill', 'is this agent safe', or any request for feedback on an AI/LLM integration. Also trigger when someone mentions creating a new agent or skill, even before it is written — help them think before they build. Don't use for rubric scoring — that's ai-forge-judge."
 ---
 
 # AI Forge Review
