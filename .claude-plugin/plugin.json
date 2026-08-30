@@ -1,6 +1,6 @@
 {
   "name": "robcsaszar-ai-forge",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "A workflow of skills for creating, updating, judging, reviewing, evaluating, and auditing AI skills and agent definitions.",
   "author": {
     "name": "Rob Csaszar",
