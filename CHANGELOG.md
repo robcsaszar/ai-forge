@@ -58,6 +58,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [0.5.0] - 2026-07-10
 
+[0.7.0]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.7.0
 [0.6.2]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.6.2
 [0.6.1]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.6.1
 [0.6.0]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.6.0
