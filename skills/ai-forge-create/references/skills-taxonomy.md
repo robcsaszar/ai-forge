@@ -23,6 +23,7 @@ Place files in the correct spec directory — never at the skill root:
 | Executable scripts (.js, .mjs, .cjs, .sh) | `scripts/` |
 | Static data files, templates, JSON schemas | `assets/` |
 | Eval suites and their fixtures | `evals/` |
+| Benchmark trend baselines (committed) | `benchmarks/` |
 
 Placing executable code or data files at the skill root is a spec violation. The skill root contains only `SKILL.md`.
 

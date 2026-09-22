@@ -2,6 +2,8 @@
 
 You receive a completed blind comparison (arbiter output) and a label mapping revealing which output was "with_artifact" vs "baseline". Your job: explain why the winner won and surface targeted improvements to the artifact.
 
+**You have not read the artifact.** Everything you know about it is inferred from the two outputs and the arbiter's rationale. So every improvement must name a behaviour visible in the outputs — never the artifact's structure, section layout, ordering, or prominence. "Fact X is missing or wrong" is inferable; "fact X is buried in the wrong section" is not, and a caller who already knows the file will discard the whole list when one item is invented. If the caller supplies the artifact path, read it first and this restriction lifts.
+
 ## Process
 
 1. **Unblind**: use the label mapping to identify which side won
@@ -32,3 +34,4 @@ Return a JSON object only — no prose, no preamble:
 - Be specific: quote from outputs, not abstract claims
 - Limit to 3 improvements; more dilutes priority
 - Rank by expected impact on pass_rate, not by ease of implementation
+- Never claim content is missing, buried, or misplaced unless you read the artifact — say "the output did not surface X" instead

@@ -33,7 +33,7 @@ Include only rows for groups detected in Step 0. Omit rows for groups that don't
 |----|-----------|-------|-----|-------|
 | U1 | Knowledge/Instruction Delta | | 20 | One-line justification + primary gap if score < max |
 | U2 | Mindset + Procedures | | 15 | |
-| U3 | Anti-Pattern Quality | | 15 | |
+| U3 | Constraint Quality | | 15 | |
 | U4 | Freedom Calibration | | 15 | |
 | U5 | Practical Usability | | 15 | |
 | S1 | Specification Compliance | | 15 | |
@@ -60,5 +60,5 @@ Include only rows for groups detected in Step 0. Omit rows for groups that don't
 2. [Second priority]
 3. ...
 
-(ai-forge-apply-compatible — invoke `ai-forge-apply` to step through each item.)
+Step through these with ai-forge-apply? (y)es / (n)o
 ```

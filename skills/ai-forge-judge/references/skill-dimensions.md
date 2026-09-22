@@ -57,7 +57,7 @@ Does the Skill follow official format requirements? **Special focus on descripti
 - [ ] Specific enough that Agent knows EXACTLY when to use it
 - [ ] Single-line value — no YAML multiline (`|` or `>`) present; if multiline, deduct S1 to 0–5 range
 - [ ] Max 1024 chars (count it; over-length is a spec violation regardless of content quality)
-- [ ] No colons in the description value (unescaped colons break frontmatter — auto-fail S1 if present)
+- [ ] No *unquoted* colon in the description value. A colon inside a quoted scalar (`description: "… animate:flip …"`) is valid YAML and costs nothing; only a bare `key: value` shape in an unquoted value breaks parsing, and only that is an auto-fail. The agentskills spec imposes no colon rule of its own
 - [ ] **Third-person imperative** — description must not contain "I", "me", "my", "we", "our", "you", "your"; first/second-person degrades discovery. Fail S1 to 6–10 range if present.
 - [ ] **Negative triggers present** — description includes "Don't use for…"; absence is not an auto-fail but deduct 1pt from S1 if missing entirely.
 - [ ] **Reaches for coverage, not only precision** — the common failure is a skill that never fires, not one that fires too often. A description scoped so narrowly that it only matches its own title is under-triggering; deduct 1pt. Descriptions that name adjacent phrasings and unspoken intents ("even when the user doesn't say X") score higher, provided a negative trigger bounds the reach.
@@ -67,7 +67,7 @@ Does the Skill follow official format requirements? **Special focus on descripti
 
 **Do not penalize a description** for failing to trigger on a trivial, one-step prompt. The model consults a skill only for tasks it can't comfortably handle alone, so a simple request may not activate any skill regardless of how well the description matches. That is a property of the routing mechanism, not a description defect.
 - [ ] **Trigger validation** (recommended): write one should-trigger prompt and confirm the skill activates in a live session — description quality is untestable by rubric alone. Use `ai-forge-eval` to validate behaviorally if uncertain.
-- [ ] **Directory compliance**: no non-SKILL.md files at skill root — docs in `references/`, executables in `scripts/`, data/templates in `assets/`. Any root-level stray file is a spec violation; deduct S1 to 6–10 range.
+- [ ] **Directory compliance**: no non-SKILL.md *files* at skill root — docs in `references/`, executables in `scripts/`, data/templates in `assets/`, eval suites in `evals/`, benchmark baselines in `benchmarks/`. Any root-level stray file is a spec violation; deduct S1 to 6–10 range. A purpose-named *directory* is not a stray file — never deduct for `evals/` or `benchmarks/`.
 
 ---
 

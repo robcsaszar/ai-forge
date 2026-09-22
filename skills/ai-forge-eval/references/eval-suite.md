@@ -75,7 +75,7 @@ Protocol:
 
 1. Write ~20 queries: 8–10 that should trigger, 8–10 near-misses that should not.
 2. Split **60/40 into train and held-out**. Tune the description against the train split only.
-3. Run each query ~3 times — triggering is stochastic, and a single run reads as 0% or 100%.
+3. Run each query twice, and a third time only for queries whose two runs disagree. A single run reads as 0% or 100%, but routing is usually far more deterministic than it looks — a measured 12-query set came back unanimous on all 24 judgments, so a blanket third run mostly re-buys an answer you already have.
 4. Iterate the description at most ~5 times, then **select by held-out score, not train score**.
 5. Never look at the holdout queries while editing the description. A description tuned against
    its own test set scores well and generalizes worse than the one you started with.

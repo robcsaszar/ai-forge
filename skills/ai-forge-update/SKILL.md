@@ -1,6 +1,6 @@
 ---
 name: ai-forge-update
-description: "Revise an existing SKILL.md or agent definition. Use when an existing skill or agent needs revision, modification, or improvement — including when it misfires, triggers too broadly or too rarely, or has drifted from what its description claims. Don't use for creating new artifacts — use ai-forge-create for that. Triggers are update/modify/revise/change this skill, edit SKILL.md, improve a skill, update this agent, this skill misfires, tighten this agent's scope."
+description: "Updates an existing SKILL.md or agent definition — structured recap, drift detection, change elicitation with conflict checking, per-item application with approval, and post-change quality gate. Use when an existing skill or agent needs revision, modification, or improvement. Don't use for creating new artifacts — use ai-forge-create for that. Triggers are update/modify/revise/change this skill, edit SKILL.md, improve a skill, update this agent."
 ---
 
 # AI Forge Update
@@ -133,7 +133,7 @@ If any change affects the artifact's structure or pattern type, verify the patte
 
 ## Phase 3 — Judge & Apply
 
-Invoke `ai-forge-judge` on the modified artifact. Always invoke `ai-forge-apply` on the findings it produces. After apply completes, proceed to Phase 4.
+Invoke `ai-forge-judge` on the modified artifact. Its report ends with one question — `Step through these with ai-forge-apply? (y)es / (n)o` — and that is the only prompt on that turn; do not ask it again. On `(y)`: invoke `ai-forge-apply` on the findings, then proceed to Phase 4. On `(n)`: treat it as zero findings applied and use the prompt below.
 
 If apply applied zero findings (every item skipped or marked obsolete), surface:
 
@@ -185,9 +185,9 @@ Print a one-block close-out:
   **Instead:** Always judge the modified artifact before presenting for final approval.
   **Why:** A change that looks correct can silently drop quality below grade.
 
-- **NEVER proceed to Phase 3 if *Phase 2's* apply applied zero changes**
+- **NEVER proceed to Phase 3 if apply applied zero changes**
   **Instead:** Show the final board and offer `(r)evise change list / (q)uit without saving`.
-  **Why:** Judging an unchanged file produces the same grade as before. This does not govern Phase 3's own zero-findings branch — reaching Phase 3 at all means Phase 2 changed something, so the judge ran against a modified file and its "no findings applied" prompt is the correct exit.
+  **Why:** Judging an unchanged file produces the same grade as before.
 
 - **NEVER apply Phase 2 changes outside ai-forge-apply**
   **Instead:** Always hand the confirmed change list to `ai-forge-apply`.

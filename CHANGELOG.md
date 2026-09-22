@@ -2,6 +2,28 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.8.0] - 2026-09-22
+
+### Fixed
+
+- `ai-forge-judge`: the description colon rule was wrong. It auto-failed S1 on any colon, but a colon inside a quoted scalar (`description: "… animate:flip …"`) is valid YAML and the agentskills spec imposes no colon rule of its own. Only a bare `key: value` shape in an *unquoted* value breaks parsing, and only that is now an auto-fail. The old rule mis-graded correct skills.
+- `ai-forge-judge`, `ai-forge-review`: `evals/` and `benchmarks/` were flagged as skill-root spec violations. A purpose-named *directory* is not a stray file; only non-`SKILL.md` files at the root are. Both now say so explicitly, so an eval suite no longer costs a skill points.
+- `ai-forge-update`: Phase 3 invoked `ai-forge-apply` unconditionally while the judge's report already ended in its own `(y)es / (n)o` prompt, so the user was asked twice. Phase 3 now honours that prompt and defines the `(n)` branch.
+- `ai-forge-eval`: an agent's result and its `<usage>` block can arrive in two separate messages. A hand-back without usage was being treated as permanently missing data; it is now recorded as `null` and overwritten if a later notification for the same task id carries the block.
+
+### Changed
+
+- `ai-forge-apply`: one decision per turn. The uncommitted-changes warning, the git opt-in, the branch question, and `(A)/(s)` are four turns rather than one line — a human facing two prompts answers both in one reply ("n A"), which the skill had no defined parse for. Added as a NEVER with that rationale.
+- `ai-forge-apply`: the git branch decision moved to `references/git.md`, loaded only on `(c)ommit`. It also gains an escape hatch — a repo whose own convention puts AI work on the default branch commits there instead of forcing an `ai/*` branch.
+- `ai-forge-apply`: `(r)evise` now collects one sentence about what was wrong with *the change*, not with the finding.
+- `ai-forge-judge`: dimension U3 renamed `Anti-Pattern Quality` → `Constraint Quality`; the report footer is now the literal prompt `Step through these with ai-forge-apply? (y)es / (n)o`.
+- `ai-forge-eval`: trigger validation runs each query twice, with a third run only where the two disagree. A measured 12-query set returned unanimous judgments on all 24 runs, so a blanket third run mostly re-buys an answer already in hand.
+- `ai-forge-create`: `benchmarks/` added to the directory taxonomy for committed trend baselines.
+
+### Added
+
+- `ai-forge-apply`: `references/git.md`.
+- `ai-forge-eval`: `agents/refiner.md` now states that it has not read the artifact, so every improvement must name a behaviour visible in the outputs — never structure, ordering, or prominence. A caller who knows the file discards the whole list when one item is invented.
 ## [0.7.0] - 2026-08-14
 
 ### Fixed
@@ -58,6 +80,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [0.5.0] - 2026-07-10
 
+[0.8.0]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.8.0
 [0.7.0]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.7.0
 [0.6.2]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.6.2
 [0.6.1]: https://github.com/robcsaszar/ai-forge/releases/tag/v0.6.1

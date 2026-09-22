@@ -63,7 +63,7 @@ For each eval, spawn the **with-artifact and baseline runs in the same message**
 - **New artifact** — same eval prompt, no skill instruction, no agent context. Plain assistant response.
 - **Improving an existing artifact** — snapshot the current version first (`cp -r <path> <scratch>/snapshot/`), then point the baseline at the snapshot. "No artifact" is the wrong control when the question is whether the change helped; it measures the artifact's existence, not the edit.
 
-**Capture immediately on completion**: when each task notification arrives, record which run it was (plus trial index in benchmark mode) and read `duration_ms` and `subagent_tokens` from its `<usage>` block — exact, not estimated. No `<usage>` block means record `null`; never substitute a wall-clock guess. This data exists only at notification time and cannot be reconstructed afterward.
+**Capture immediately on completion**: when each task notification arrives, record which run it was (plus trial index in benchmark mode) and read `duration_ms` and `subagent_tokens` from its `<usage>` block — exact, not estimated. An agent's result and its `<usage>` block can arrive in two separate messages, so a hand-back without usage is not yet a missing measurement — record `null`, and overwrite it if a later notification for that same task id carries the block. Never substitute a wall-clock guess. This data exists only at notification time and cannot be reconstructed afterward.
 
 Store per eval: `with_artifact` and `baseline` output text, plus `duration_ms` and `tokens` for each arm.
 
